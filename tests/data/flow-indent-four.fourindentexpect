@@ -1,0 +1,12 @@
+  - hosts: localhost
+    vars:
+        yaml:
+            list_of_dict_attr:
+              - attr1: value1
+                attr2: value2
+                attr3:
+                  - item1
+                  - item2
+            single_attr: value1
+  -   - aaa
+      - ccc
