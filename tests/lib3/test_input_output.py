@@ -131,6 +131,25 @@ def test_unicode_transfer(unicode_filename, verbose=False):
 
 test_unicode_transfer.unittest = ['.unicode']
 
+def test_scalar_explicit_document_end(input_filename, expected_filename, verbose=False):
+    data = yaml.full_load_all(open(input_filename, 'rb'))
+    output = yaml.dump_all(data, explicit_end=True)
+    expected = open(expected_filename, 'rb').read().decode('utf-8')
+
+    assert output == expected, (output, expected)
+
+test_scalar_explicit_document_end.unittest = ['.explicit-input', '.explicit-expected']
+
+def test_scalar_implicit_document_end(input_filename, expected_filename, verbose=False):
+    data = yaml.full_load_all(open(input_filename, 'rb'))
+    output = yaml.dump_all(data, explicit_end=False)
+    expected = open(expected_filename, 'rb').read().decode('utf-8')
+
+    assert output == expected, (output, expected)
+
+test_scalar_implicit_document_end.unittest = ['.unexplicit-input', '.unexplicit-expected']
+
+
 if __name__ == '__main__':
     import test_appliance
     test_appliance.run(globals())

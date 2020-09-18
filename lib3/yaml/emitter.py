@@ -78,6 +78,7 @@ class Emitter:
 
         # Whether the document requires an explicit document indicator
         self.open_ended = False
+        self.is_ended = False
 
         # Formatting details.
         self.canonical = canonical
@@ -177,7 +178,7 @@ class Emitter:
 
     def expect_document_start(self, first=False):
         if isinstance(self.event, DocumentStartEvent):
-            if (self.event.version or self.event.tags) and self.open_ended:
+            if (self.event.version or self.event.tags) and (not self.is_ended and not first):
                 self.write_indicator('...', True)
                 self.write_indent()
             if self.event.version:
@@ -201,10 +202,8 @@ class Emitter:
                 if self.canonical:
                     self.write_indent()
             self.state = self.expect_document_root
+            self.is_ended = False
         elif isinstance(self.event, StreamEndEvent):
-            if self.open_ended:
-                self.write_indicator('...', True)
-                self.write_indent()
             self.write_stream_end()
             self.state = self.expect_nothing
         else:
@@ -799,6 +798,8 @@ class Emitter:
 
     def write_indicator(self, indicator, need_whitespace,
             whitespace=False, indention=False):
+        if indicator == '...':
+            self.is_ended = True
         if self.whitespace or not need_whitespace:
             data = indicator
         else:
