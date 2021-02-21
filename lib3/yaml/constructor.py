@@ -236,6 +236,8 @@ class SafeConstructor(BaseConstructor):
 
     def construct_yaml_int(self, node):
         value = self.construct_scalar(node)
+        if value == '':
+            return ''
         value = value.replace('_', '')
         sign = +1
         if value[0] == '-':
@@ -269,6 +271,8 @@ class SafeConstructor(BaseConstructor):
 
     def construct_yaml_float(self, node):
         value = self.construct_scalar(node)
+        if value == '':
+            return ''
         value = value.replace('_', '').lower()
         sign = +1
         if value[0] == '-':
@@ -321,6 +325,8 @@ class SafeConstructor(BaseConstructor):
 
     def construct_yaml_timestamp(self, node):
         value = self.construct_scalar(node)
+        if value == '':
+            return ''
         match = self.timestamp_regexp.match(node.value)
         values = match.groupdict()
         year = int(values['year'])
