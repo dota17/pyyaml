@@ -65,6 +65,7 @@ class Emitter:
         self.sequence_context = False
         self.mapping_context = False
         self.simple_key_context = False
+        self.value_context = False
 
         # Characteristics of the last emitted character:
         #  - current position.
@@ -230,11 +231,12 @@ class Emitter:
     # Node handlers.
 
     def expect_node(self, root=False, sequence=False, mapping=False,
-            simple_key=False):
+            simple_key=False, value_context=False):
         self.root_context = root
         self.sequence_context = sequence
         self.mapping_context = mapping
         self.simple_key_context = simple_key
+        self.value_context = value_context
         if isinstance(self.event, AliasEvent):
             self.expect_alias()
         elif isinstance(self.event, (ScalarEvent, CollectionStartEvent)):
@@ -287,7 +289,7 @@ class Emitter:
             if self.canonical or self.column > self.best_width:
                 self.write_indent()
             self.states.append(self.expect_flow_sequence_item)
-            self.expect_node(sequence=True)
+            self.expect_node(sequence=True, value_context=True)
 
     def expect_flow_sequence_item(self):
         if isinstance(self.event, SequenceEndEvent):
@@ -303,7 +305,7 @@ class Emitter:
             if self.canonical or self.column > self.best_width:
                 self.write_indent()
             self.states.append(self.expect_flow_sequence_item)
-            self.expect_node(sequence=True)
+            self.expect_node(sequence=True, value_context=True)
 
     # Flow mapping handlers.
 
@@ -354,14 +356,14 @@ class Emitter:
     def expect_flow_mapping_simple_value(self):
         self.write_indicator(':', False)
         self.states.append(self.expect_flow_mapping_key)
-        self.expect_node(mapping=True)
+        self.expect_node(mapping=True, value_context=True)
 
     def expect_flow_mapping_value(self):
         if self.canonical or self.column > self.best_width:
             self.write_indent()
         self.write_indicator(':', True)
         self.states.append(self.expect_flow_mapping_key)
-        self.expect_node(mapping=True)
+        self.expect_node(mapping=True, value_context=True)
 
     # Block sequence handlers.
 
@@ -381,7 +383,7 @@ class Emitter:
             self.write_indent()
             self.write_indicator('-', True, indention=True)
             self.states.append(self.expect_block_sequence_item)
-            self.expect_node(sequence=True)
+            self.expect_node(sequence=True, value_context=True)
 
     # Block mapping handlers.
 
@@ -409,13 +411,13 @@ class Emitter:
     def expect_block_mapping_simple_value(self):
         self.write_indicator(':', False)
         self.states.append(self.expect_block_mapping_key)
-        self.expect_node(mapping=True)
+        self.expect_node(mapping=True, value_context=True)
 
     def expect_block_mapping_value(self):
         self.write_indent()
         self.write_indicator(':', True, indention=True)
         self.states.append(self.expect_block_mapping_key)
-        self.expect_node(mapping=True)
+        self.expect_node(mapping=True, value_context=True)
 
     # Checkers.
 
@@ -508,7 +510,7 @@ class Emitter:
                 return self.event.style
         if not self.event.style or self.event.style == '\'':
             if (self.analysis.allow_single_quoted and
-                    not (self.simple_key_context and self.analysis.multiline)):
+                    not (self.simple_key_context and self.analysis.multiline) and not self.value_context):
                 return '\''
         return '"'
 
