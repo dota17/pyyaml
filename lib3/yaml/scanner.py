@@ -773,8 +773,12 @@ class Scanner:
             self.forward()
         found = False
         while not found:
-            while self.peek() == ' ':
+            ch = self.peek()
+            while ch in ' \t':
+                if ch == '\t' and not self.flow_level:
+                  self.allow_simple_key = False
                 self.forward()
+                ch = self.peek()
             if self.peek() == '#':
                 while self.peek() not in '\0\r\n\x85\u2028\u2029':
                     self.forward()
@@ -1314,7 +1318,7 @@ class Scanner:
         # We just forbid them completely. Do not use tabs in YAML!
         chunks = []
         length = 0
-        while self.peek(length) in ' ':
+        while self.peek(length) in ' \t':
             length += 1
         whitespaces = self.prefix(length)
         self.forward(length)

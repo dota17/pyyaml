@@ -508,7 +508,7 @@ class Emitter:
                 return self.event.style
         if not self.event.style or self.event.style == '\'':
             if (self.analysis.allow_single_quoted and
-                    not (self.simple_key_context and self.analysis.multiline)):
+                    not (self.simple_key_context or self.analysis.multiline)):
                 return '\''
         return '"'
 
