@@ -451,7 +451,8 @@ class Emitter:
             length += len(self.analysis.scalar)
         return (length < 128 and (isinstance(self.event, AliasEvent)
             or (isinstance(self.event, ScalarEvent)
-                    and not self.analysis.empty and not self.analysis.multiline)
+                    and (not self.analysis.empty or self.event.value == '')
+                    and not self.analysis.multiline)
             or self.check_empty_sequence() or self.check_empty_mapping()))
 
     # Anchor, Tag, and Scalar processors.
