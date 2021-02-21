@@ -131,6 +131,15 @@ def test_unicode_transfer(unicode_filename, verbose=False):
 
 test_unicode_transfer.unittest = ['.unicode']
 
+def test_flow_indent_four(input_filename, expect_filename, verbose=False):
+    data = yaml.full_load(open(input_filename, 'rb'))
+    output = yaml.dump(data, indent=4, allow_unicode=True, default_flow_style=False)
+    expect = open(expect_filename, 'rb').read().decode('utf-8')
+
+    assert output == expect, (output, expect)
+
+test_flow_indent_four.unittest = ['.fourindentinput', '.fourindentexpect']
+
 if __name__ == '__main__':
     import test_appliance
     test_appliance.run(globals())
